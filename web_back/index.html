@@ -104,5 +104,27 @@
 
     </script>
 
+    <script>
+        // 给退出按钮添加点击事件
+        $('.icon-tuichu').on('click',function(e){
+            e.preventDefault();
+
+            $.ajax({
+                type:'post',
+                url:'https://autumnfish.cn/big/admin/logout',
+                data:{
+
+                },
+                success:function(backData){
+                   if(backData.code == 200){
+                        window.location.href = './login.html';
+                   }else{
+                        alert('登出失败');
+                   }
+                    
+                }
+            })         
+        })
+    </script>
 </body>
 </html>
