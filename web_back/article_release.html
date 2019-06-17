@@ -15,6 +15,7 @@
     <script src="js/jedate/js/jedate.js"></script>
     <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="js/tinymce/js/tinymce_setup.js"></script>
+    <script src="./js/template-web.js"></script>
 </head>
 
 <body>
@@ -27,19 +28,20 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" placeholder="文章标题">
+                        <input type="text" class="form-control" id="inputEmail3" placeholder="文章标题" name="title">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
-                        <input type="file" id="exampleInputFile">
+                        <img src="" alt="" class="control_pic">
+                        <input type="file" id="exampleInputFile" name="cover">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
+                        <select class="form-control sel_control" name="type">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -53,7 +55,7 @@
                     <div class="col-sm-4">
 
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="dateinput">
+                            <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="dateinput" name="date">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button"
                                     onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i
@@ -72,13 +74,67 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">发布</button>
+                        <button type="submit" class="btn btn-success" id="btn_send">发布</button>
                         <button type="submit" class="btn btn-default">存为草稿</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- 文章分类模板 -->
+    <script id="tmp_wen" type="text/html">
+        {{each data v}}
+        <option value="{{v.id}}">{{v.name}}</option> 
+        {{/each}}
+    </script>
+
+    <script>
+        // 文章封面
+        // 文件预览，给exampleInputFile按钮添加change事件
+        $('#exampleInputFile').on('change',function(){
+            var files = this.files[0];//获取当前选择的文件信息
+            var url = URL.createObjectURL(files);//获取文件路径
+            $('.control_pic').attr('src',url);
+        });
+
+        // 页面一进入时就加载出所有文章类别
+        $.ajax({
+            type:'get',
+            url:'http://localhost:8000/admin/category_search',
+            success:function(backData){
+                console.log(backData);
+                if(backData.code == 200){
+                    var resHtml = template('tmp_wen',backData);
+                    $('.sel_control').html(resHtml);
+                }
+            }
+        });
+
+        // 给发布设置点击事件
+        $('#btn_send').click(function(e){
+            e.preventDefault();
+            // formdata获取表单数据
+            var formdata = new FormData($('form')[0]);
+            formdata.append('content',tinyMCE.activeEditor.getContent());
+            formdata.append('state','草稿');
+            console.log(formdata);
+
+            $.ajax({
+                type:'post',
+                url:'http://localhost:8000/admin/article_publish',
+                data:formdata,
+                contentType:false,
+                processData:false,
+                success:function(backData){
+                    console.log(backData);
+                }
+            })
+        })
+
+
+        
+    </script>
 
 </body>
 

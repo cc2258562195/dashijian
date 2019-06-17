@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/template-web.js"></script>
 </head>
 
 <body>
@@ -221,6 +223,39 @@
         <p>电话：0755-****888    粤ICP备*******8号</p>
     </div>
 
+    <!-- 模板 -->
+    <script id="temp_focus" type="text/html">
+        {{each data v}}
+            {{if $index == 0}}
+            <li class="first">
+            {{else}}
+            <li>
+            {{/if}}
+                <a href="./article.html?id={{v.id}}"><img src="{{v.cover}}" alt=""></a>
+                <p>{{v.title}}</p>
+            </li>
+        {{/each}}             
+    </script>
+
+    <script>
+        // 一进到前台首页,就发送ajax请求,获取到最新的5篇文章,
+        $.ajax({
+            type:'get',
+            url:'http://localhost:8000/admin/search',
+            data:{
+                key:'',
+                type:'',
+                state:'',
+                page:1,
+                perpage:5
+            },
+            success:function(backData){
+                console.log(backData);
+                var resHtml = template('temp_focus',backData);
+                $('.focus_list').html(resHtml);
+            }
+        })
+    </script>
 </body>
 
 </html>
